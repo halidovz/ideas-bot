@@ -1,0 +1,8 @@
+{
+    "require": {
+        "longman/telegram-bot": "^0.50.0"
+    },
+    "autoload": {
+        "psr-4": {"Ideas\\": "src/"}
+    }
+}
