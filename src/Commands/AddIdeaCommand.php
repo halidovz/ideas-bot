@@ -3,6 +3,7 @@
 namespace Longman\TelegramBot\Commands\UserCommands;
 
 use Ideas\AbstractClasses\Commands\AbstractCommand;
+use Ideas\Entity\KeyboardBackBuilder;
 use Ideas\IdeasDB;
 use Longman\TelegramBot\Request;
 
@@ -18,8 +19,13 @@ class AddIdeaCommand extends AbstractCommand {
     $user         = $message->getFrom();
     $chat_id      = $message->getChat()->getId();
 
-    $data = [                                  // Set up the new message data
-      'chat_id' => $chat_id,                 // Set Chat ID to send the message to
+    $kyeboardBuilder = new KeyboardBackBuilder();
+    $keyboard = $kyeboardBuilder->getKeyboard();
+
+    $data = [
+      'chat_id' => $chat_id,
+      'parse_mode' => 'html',
+      'reply_markup' => $keyboard
     ];
 
     if (!$conversation->notes['fileId']) {
@@ -34,17 +40,20 @@ class AddIdeaCommand extends AbstractCommand {
         $photoPath = 'https://api.telegram.org/file/bot' . $this->telegram->getApiKey() . '/' . $file->getResult()->getFilePath();
         $fileId    = $photo->getFileId();
 
-        $data['photo']                 = $fileId;
-        $ideaId                        = IdeasDB::createIdea(['userId' => $user->getId(), 'photoPath' => $photoPath, 'fileId' => $fileId]);
         $conversation->notes['fileId'] = $fileId;
-        $conversation->notes['ideaId'] = $ideaId;
+        $conversation->notes['photoPath'] = $photoPath;
         $data['text']                  = 'Теперь пришлите описание идеи';
       }
     } else {
       $data['text'] = 'Пришлите описание идеи';
       $text         = $message->getText();
       if ($text) {
-        IdeasDB::setDescription(['ideaId' => $conversation->notes['ideaId'], 'description' => $text]);
+        IdeasDB::createIdea([
+          'userId' => $user->getId(),
+          'photoPath' => $conversation->notes['photoPath'],
+          'fileId' => $conversation->notes['fileId'],
+          'description' => $text
+        ]);
         $data['text'] = 'Ваша идея принята!';
         $conversation->stop();
       }

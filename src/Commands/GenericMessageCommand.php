@@ -9,7 +9,9 @@
  */
 namespace Longman\TelegramBot\Commands\SystemCommands;
 use Ideas\AbstractClasses\Commands\AbstractCommand;
+use Ideas\CommandsList;
 use Longman\TelegramBot\Request;
+
 /**
  * Generic command
  *
@@ -37,10 +39,27 @@ class GenericMessageCommand extends AbstractCommand
    */
   public function execute()
   {
+    $message = $this->getMessage();
+
+    switch ($message->getText()) {
+      case CommandsList::COMMANDS_GENERIC[CommandsList::ADD_ADEA]:
+        return $this->telegram->executeCommand(CommandsList::ADD_ADEA);
+        break;
+
+      case CommandsList::COMMANDS_GENERIC[CommandsList::LIST_IDEAS]:
+        return $this->telegram->executeCommand(CommandsList::LIST_IDEAS);
+        break;
+
+      case CommandsList::COMMANDS_GENERIC[CommandsList::START]:
+        return $this->telegram->executeCommand(CommandsList::START);
+        break;
+    }
+
     $conversation = $this->getConversation();
     if ($conversation->exists() && ($command = $conversation->getCommand())) {
       return $this->telegram->executeCommand($command);
     }
-    return Request::emptyResponse();
+
+    return $this->telegram->executeCommand('start');
   }
 }
