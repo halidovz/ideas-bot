@@ -85,9 +85,7 @@ class IdeasDB extends DB
     self::$pdo->exec("INSERT INTO user_idea (user_id, idea_id) VALUES($userId,$ideaId) ON DUPLICATE KEY UPDATE idea_id = $ideaId");
   }
 
-  public static function deleteIdea($userId) {
-    $lastId = self::getLastViewedIdeaId($userId);
-    $ideaId = self::$pdo->query("SELECT id FROM ideas WHERE id > $lastId AND user_id != $userId AND deleted_at IS NULL ORDER BY id LIMIT 1")->fetch(\PDO::FETCH_COLUMN);
+  public static function deleteIdea($ideaId) {
     self::$pdo->exec("UPDATE ideas SET deleted_at = NOW() WHERE id = $ideaId");
   }
 }

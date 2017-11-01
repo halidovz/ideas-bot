@@ -29,8 +29,9 @@ class ListIdeasCommand extends AbstractCommand {
       $idea = IdeasDB::getNextIdea($userId, $isAdmin);
     }
     else if ($message->getText() === CommandsList::COMMANDS_GENERIC[CommandsList::DISLIKE]) {
-      IdeasDB::deleteIdea($userId);
+      $currentIdea = IdeasDB::getCurrentIdea($userId, $isAdmin);
       $idea = IdeasDB::getNextIdea($userId, $isAdmin);
+      IdeasDB::deleteIdea($currentIdea['id']);
     }
     else if ($message->getText() === CommandsList::COMMANDS_GENERIC[CommandsList::NEXT]) {
       $idea = IdeasDB::getNextIdea($userId, $isAdmin);
