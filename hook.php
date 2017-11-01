@@ -12,6 +12,7 @@ try {
   // Add this line inside the try{}
   $telegram->addCommandsPaths($commands_paths);
   $telegram->enableMySql($mysql_credentials);
+  $telegram->enableAdmins([748759, 1148457]);
 
   // Handle telegram webhook request
   $telegram->handle();

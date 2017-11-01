@@ -16,6 +16,7 @@ class CommandsList {
   const LIST_IDEAS = 'listideas';
   const START = 'start';
   const LIKE = 'like';
+  const DISLIKE = 'remove';
   const NEXT = 'next';
 
   const COMMANDS_GENERIC = [
@@ -23,6 +24,7 @@ class CommandsList {
     self::LIST_IDEAS => '⚡ List ideas',
     self::START => '🏠 Home',
     self::LIKE => '👍 Like',
+    self::DISLIKE => '👎 Remove',
     self::NEXT => '➡️ Next',
   ];
 }

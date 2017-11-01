@@ -24,4 +24,8 @@ abstract class AbstractCommand extends Command {
 
     return null;
   }
+
+  protected function isAdmin() {
+    return $this->telegram->isAdmin($this->getMessage()->getFrom()->getId());
+  }
 }

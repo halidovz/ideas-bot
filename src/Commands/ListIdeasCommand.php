@@ -20,21 +20,27 @@ class ListIdeasCommand extends AbstractCommand {
     $message      = $this->getMessage();
     $user         = $message->getFrom();
     $chat_id      = $message->getChat()->getId();
+    $userId = $user->getId();
 
+    $isAdmin = $this->isAdmin();
     if ($message->getText() === CommandsList::COMMANDS_GENERIC[CommandsList::LIKE]) {
-      $currentIdea = IdeasDB::getCurrentIdea($user->getId());
-      IdeasDB::voteForIdea($user->getId(), $currentIdea['id']);
-      $idea = IdeasDB::getNextIdea($user->getId());
+      $currentIdea = IdeasDB::getCurrentIdea($userId, $isAdmin);
+      IdeasDB::voteForIdea($userId, $currentIdea['id']);
+      $idea = IdeasDB::getNextIdea($userId, $isAdmin);
+    }
+    else if ($message->getText() === CommandsList::COMMANDS_GENERIC[CommandsList::DISLIKE]) {
+      IdeasDB::deleteIdea($userId);
+      $idea = IdeasDB::getNextIdea($userId, $isAdmin);
     }
     else if ($message->getText() === CommandsList::COMMANDS_GENERIC[CommandsList::NEXT]) {
-      $idea = IdeasDB::getNextIdea($user->getId());
+      $idea = IdeasDB::getNextIdea($userId, $isAdmin);
     }
     else {
-      $idea = IdeasDB::getCurrentIdea($user->getId());
+      $idea = IdeasDB::getCurrentIdea($userId, $isAdmin);
     }
 
     if ($idea) {
-      $keyboardBuilder = new KeyboardListBuilder();
+      $keyboardBuilder = new KeyboardListBuilder($isAdmin);
     } else {
       $keyboardBuilder = new KeyboardBackBuilder();
     }

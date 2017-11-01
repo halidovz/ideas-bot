@@ -31,32 +31,46 @@ class IdeasDB extends DB
     self::$pdo->exec("INSERT IGNORE INTO ideas_votes (user_id, idea_id) VALUES($userId, $ideaId)");
   }
 
-  public static function getNextIdea($userId) {
+  public static function getNextIdea($userId, $isAdmin) {
     $userId = (int) $userId;
     $lastIdeaId = self::getLastViewedIdeaId($userId);
-    $idea = self::getIdeaById($userId, $lastIdeaId);
+    $idea = self::getIdeaById($userId, $lastIdeaId, $isAdmin);
     if ($idea) {
       self::updateUserIdeaId($userId, is_null($lastIdeaId) ? 0 : $idea['id']);
-      $idea = self::getIdeaById($userId, is_null($lastIdeaId) ? 0: $idea['id']);
+      $idea = self::getIdeaById($userId, is_null($lastIdeaId) ? 0: $idea['id'], $isAdmin);
     }
 
     return $idea;
   }
 
-  public static function getCurrentIdea($userId) {
+  public static function getCurrentIdea($userId, $isAdmin) {
     $userId = (int) $userId;
     $lastIdeaId = self::getLastViewedIdeaId($userId);
     if (is_null($lastIdeaId)) {
-      return self::getNextIdea($userId);
+      return self::getNextIdea($userId, $isAdmin);
     }
 
-    return self::getIdeaById($userId, $lastIdeaId);
+    return self::getIdeaById($userId, $lastIdeaId, $isAdmin);
   }
 
-  protected static function getIdeaById($userId, $ideaId) {
+  protected static function getIdeaById($userId, $ideaId, $isAdmin) {
     $userId = (int) $userId;
     $ideaId = (int) $ideaId;
-    return self::$pdo->query("SELECT * FROM ideas WHERE id > $ideaId AND user_id != $userId ORDER BY id LIMIT 1")->fetch(\PDO::FETCH_ASSOC);
+    $cond = '';
+    if (!$isAdmin) {
+      $cond = ' AND approved_at IS NOT NULL';
+    }
+    $idea = self::$pdo->query("SELECT * FROM ideas WHERE id > $ideaId AND user_id != $userId AND deleted_at IS NULL $cond ORDER BY id LIMIT 1")->fetch(\PDO::FETCH_ASSOC);
+    if ($isAdmin && $idea) {
+      self::approveIdea($idea['id']);
+    }
+
+    return $idea;
+  }
+
+  protected static function approveIdea($ideaId) {
+    $ideaId = (int) $ideaId;
+    self::$pdo->exec("UPDATE ideas set approved_at = NOW() WHERE id = $ideaId");
   }
 
   protected static function getLastViewedIdeaId($userId) {
@@ -69,5 +83,11 @@ class IdeasDB extends DB
     $userId = (int) $userId;
     $ideaId = (int) $ideaId;
     self::$pdo->exec("INSERT INTO user_idea (user_id, idea_id) VALUES($userId,$ideaId) ON DUPLICATE KEY UPDATE idea_id = $ideaId");
+  }
+
+  public static function deleteIdea($userId) {
+    $lastId = self::getLastViewedIdeaId($userId);
+    $ideaId = self::$pdo->query("SELECT id FROM ideas WHERE id > $lastId AND user_id != $userId AND deleted_at IS NULL ORDER BY id LIMIT 1")->fetch(\PDO::FETCH_COLUMN);
+    self::$pdo->exec("UPDATE ideas SET deleted_at = NOW() WHERE id = $ideaId");
   }
 }
