@@ -8,7 +8,8 @@ class KeyboardMainBuilder extends AbstractKeyboardBuilder {
   public function __construct() {
     $this->keyboard = new Keyboard(
       [CommandsList::COMMANDS_GENERIC[CommandsList::ADD_ADEA]],
-      [CommandsList::COMMANDS_GENERIC[CommandsList::LIST_IDEAS]]
+      [CommandsList::COMMANDS_GENERIC[CommandsList::LIST_IDEAS]],
+      [CommandsList::COMMANDS_GENERIC[CommandsList::TOPLIST]]
     );
 
     $this->keyboard

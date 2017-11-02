@@ -50,6 +50,10 @@ class GenericMessageCommand extends AbstractCommand
         return $this->telegram->executeCommand(CommandsList::LIST_IDEAS);
         break;
 
+      case CommandsList::COMMANDS_GENERIC[CommandsList::TOPLIST]:
+        return $this->telegram->executeCommand(CommandsList::TOPLIST);
+        break;
+
       case CommandsList::COMMANDS_GENERIC[CommandsList::START]:
         return $this->telegram->executeCommand(CommandsList::START);
         break;

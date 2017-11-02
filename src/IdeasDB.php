@@ -88,4 +88,8 @@ class IdeasDB extends DB
   public static function deleteIdea($ideaId) {
     self::$pdo->exec("UPDATE ideas SET deleted_at = NOW() WHERE id = $ideaId");
   }
+
+  public static function top10() {
+    return self::$pdo->query("SELECT i.*, count(*) AS cnt FROM ideas i INNER JOIN ideas_votes v ON i.id = v.idea_id WHERE i.approved_at IS NOT NULL AND i.deleted_at IS NULL GROUP BY i.id HAVING cnt > 0 ORDER BY cnt DESC LIMIT 10")->fetchAll(\PDO::FETCH_ASSOC);
+  }
 }
