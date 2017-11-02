@@ -23,7 +23,7 @@ class CommandsList {
   const COMMANDS_GENERIC = [
     self::ADD_ADEA => '💡 Add idea',
     self::LIST_IDEAS => '⚡ List ideas',
-    self::TOPLIST => '🏆 Top 10 ideas',
+    self::TOPLIST => '🏆 Top 10',
     self::START => '🏠 Home',
     self::LIKE => '👍 Like',
     self::DISLIKE => '👎 Remove',
